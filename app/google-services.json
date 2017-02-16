@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "44945681212",
+    "firebase_url": "https://android-chat-770e3.firebaseio.com",
+    "project_id": "android-chat-770e3",
+    "storage_bucket": "android-chat-770e3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:44945681212:android:4c15be92c850b6d1",
+        "android_client_info": {
+          "package_name": "com.example.ntinos.androidchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "44945681212-heeuqapsf8fc6cfan2rqh661esaamgbl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [{ "current_key": " AIzaSyCeySfn8XhmHdJDG73mcoiDNWdA1jEhzI8" }],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
