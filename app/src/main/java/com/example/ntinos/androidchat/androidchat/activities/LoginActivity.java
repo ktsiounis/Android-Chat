@@ -1,11 +1,17 @@
-package com.example.ntinos.androidchat;
+package com.example.ntinos.androidchat.androidchat.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Dialog;
+import android.app.FragmentManager;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -13,14 +19,13 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -31,10 +36,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ntinos.androidchat.R;
+import com.example.ntinos.androidchat.androidchat.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -214,12 +222,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 }
                                 else{
                                     //show username dialog
+                                    UsernameDialogFragment dialog = new UsernameDialogFragment();
+                                    dialog.show(getSupportFragmentManager(),null);
                                 }
                             }
                         });
             }
             else{
+                mAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
 
+                                showProgress(false);
+
+                                if (!task.isSuccessful()) {
+                                    Toast.makeText(LoginActivity.this, "Failed to Authenticate",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                                else{
+                                    Intent chat = new Intent(getBaseContext(), ChatActivity.class);
+                                    startActivity(chat);
+                                }
+                            }
+                        });
             }
         }
     }
@@ -322,6 +348,44 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
+    }
+
+    public static class UsernameDialogFragment extends DialogFragment{
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            builder.setView(inflater.inflate(R.layout.userprofile_dialog, null))
+                    // Add action buttons
+                    .setPositiveButton(R.string.action_register, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            // register the user ...
+                            EditText userNameField = (EditText)((AlertDialog)dialog).findViewById(R.id.username);
+                            EditText firstNameField = (EditText)((AlertDialog)dialog).findViewById(R.id.firstName);
+                            EditText lastNameField = (EditText)((AlertDialog)dialog).findViewById(R.id.lastName);
+
+                            String username = userNameField.getText().toString();
+                            String firstname = firstNameField.getText().toString();
+                            String lastname = lastNameField.getText().toString();
+                            String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                            User aUser = new User(firstname, username, lastname);
+
+                            FirebaseDatabase.getInstance().getReference("users").child(userID).child("profile").setValue(aUser);
+
+                            Intent chat = new Intent(getActivity().getBaseContext(), ChatActivity.class);
+                            startActivity(chat);
+                        }
+                    });
+            return builder.create();
+        }
+
     }
 
 }
